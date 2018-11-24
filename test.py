@@ -17,13 +17,14 @@ print(directory)
 
 #from nibabel.testing import data_path
 image = nib.load(filename)
-print(image.shape)		      	#image size in pixels
+a = image.shape
+print(a)		      	#image size in pixels
 print(image.get_data_dtype())	#image data type
 
 # The get_data() function returns a standard NumPy multi-dimensional array, so you can treat it as you would any other ndarray.
 image_data = image.get_data()
 
-for i in range(1):
+for i in range(a[-1]):
 	fig = plt.figure()
 	fname = 'image'+str(i)+'.png'
 	full_path = directory + '/' + fname
