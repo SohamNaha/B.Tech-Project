@@ -1,14 +1,10 @@
 
 #importing modules
-import os
 import nibabel as nib
 from tkinter.filedialog import askopenfilename
-import pandas as pd
 import numpy as np
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import sklearn.preprocessing as skp
 
 # interactively ask for the .nii.gz file
 filename = askopenfilename(title="Open File")
@@ -18,7 +14,7 @@ image = nib.load(filename)       #from nibabel.testing import data_path
 image_data = image.get_data()
 
 ra = 0.3
-rb = ra * 1.15
+rb = ra * 1.5
 Eup = 0.5
 Edown = 0.15
 colors_options = 'rgb'
@@ -31,20 +27,30 @@ def set_colors(labels, colors=colors_options):
         colored_labels.append(colors[label])
     return colored_labels
 """
+for k in range(120,161,4):
+    DataMatrix = image_data[:,:,k]
+    print("Image",k)
+    # normalization
+    y = DataMatrix.reshape(1,-1)[0]
+    y = y.astype(float)
+    max_,min_ = max(y),min(y)
+    for i in range(len(DataMatrix)):
+        for j in range(len(DataMatrix[0])):
+            DataMatrix[i][j] = (DataMatrix[i][j] - min_)/(max_ - min_)
 
-DataMatrix = image_data[:,:,128]
+    kmeans = KMeans(n_clusters=10).fit(DataMatrix)
 
-normalized_data_matrix = skp.scale(DataMatrix)
-
-kmeans = KMeans(n_clusters=3).fit(normalized_data_matrix)
-
-labels = kmeans.labels_
-print(labels)
-"""
-colors = set_colors(labels)
-"""
-centroids = kmeans.cluster_centers_
-print(centroids)
+    labels = kmeans.labels_
+    print("\nThe Labels in the Clustering are:\n")
+    print(labels)
+    """
+    colors = set_colors(labels)
+    """
+    centroids = kmeans.cluster_centers_
+    print("\nThe Centroids in the Image are:\n")
+    for i in range(len(centroids)):
+        print("Center c",i+1,": ",centroids[i])
+    DataMatrix = []
 
 """
 fig = plt.figure()
@@ -65,7 +71,7 @@ print('K-means cluster centers')
 print('c1 = {} \nc2 = {} \nc3 = {}\n'.format(kmeans.cluster_centers_[0],
                                          kmeans.cluster_centers_[1],
                                          kmeans.cluster_centers_[2]))
-"""
+
 # initialize potentials
 size = len(normalized_data_matrix)
 potential = [0.0] * size
@@ -120,3 +126,4 @@ while criteria and current_max_value:
 
 print('Subtractive cluster centers')
 print(cluster_center)
+"""
